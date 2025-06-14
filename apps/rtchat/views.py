@@ -6,7 +6,8 @@ from .forms import ChatmessageCreateForm
 
 @login_required
 def chat_view(request):
-    chat_group = get_object_or_404(ChatGroup, group_name='public-chat')
+    chat_group = ChatGroup.objects.get_or_create(group_name='public-chat')[0]
+    chatroom_name = chat_group.group_name
     chat_messages = chat_group.chat_messages.all()[:30]  # Fetch the last 30 messages
     form = ChatmessageCreateForm()
 
@@ -23,4 +24,9 @@ def chat_view(request):
             }
             return render(request, 'rtchat/partials/chat_message_p.html', context)
 
-    return render(request, 'rtchat/chat.html', {'chat_messages': chat_messages, 'form': form})
+    context = {
+        'chatroom_name': chatroom_name,
+        'chat_messages': chat_messages,
+        'form': form,
+    }
+    return render(request, 'rtchat/chat.html', context)
